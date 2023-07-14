@@ -1,4 +1,5 @@
 import pygame
+from game.components.spaceship import Spaceship
 
 # game.utils.constants -> es un modulo donde tengo "objetos" en memoria como el BG (background)...etc
 #   tambien tenemos valores constantes como el title, etc
@@ -14,6 +15,9 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
         self.playing = False
+        #primero llamo a la clase Spaceship y accedo a la bariable screen del hijo
+        #metodo inicialzador de spaceship
+        self.avatar = Spaceship(self.screen) 
         self.game_speed = 10
         self.x_pos_bg = 0
         self.y_pos_bg = 0
@@ -37,12 +41,31 @@ class Game:
         for event in pygame.event.get(): # con el for sacamos cada evento del "iterable"
             if event.type == pygame.QUIT: # pygame.QUIT representa la X de la ventana
                 self.playing = False
+            if event.type == pygame.KEYDOWN: #Detecta si presiono la tecla
+                print("presione la tecla")
+                if event.key == pygame.K_LEFT: #mueve ala  izquierda al presionar
+                    self.avatar.moving_left()
+                    print("mueve a la izquierda")
+                    #self.moving_x = -5
+                elif event.key == pygame.K_RIGHT: #mueve ala  derecha al presionar
+                        print("mueve a la derecha")
+                        self.avatar.moving_right()
+                        #self.moving_x = 5
+            elif event.type == pygame.KEYUP: #Detecta si solte la tecla
+                #verifica que si solte la tecla
+                if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
+                    print("solte la tecla")
+                    #self.avatar.stop_moving()
 
     # aca escribo ALGO de la logica "necesaria" -> repartimos responsabilidades entre clases
     # o sea aqui deberia llamar a los updates de mis otros objetos
     # si tienes un spaceship; el spaceship deberia tener un "update" method que llamamos desde aqui
     def update(self):
-        pass
+         self.avatar.update()
+
+         
+
+         
 
     # este metodo "dibuja o renderiza o refresca mis cambios en la pantalla del juego"
     # aca escribo ALGO de la logica "necesaria" -> repartimos responsabilidades entre clases
@@ -52,6 +75,7 @@ class Game:
         self.clock.tick(FPS) # configuramos cuantos frames dibujaremos por segundo
         self.screen.fill((255, 255, 255)) # esta tupla (255, 255, 255) representa un codigo de color: blanco
         self.draw_background()
+        self.avatar.draw()
         pygame.display.update()
         pygame.display.flip()
 
