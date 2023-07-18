@@ -1,9 +1,11 @@
 import pygame
+from game.components.enemy import Enemy
+from game.components.enemy2 import Enemy_2
 from game.components.spaceship import Spaceship
 
 # game.utils.constants -> es un modulo donde tengo "objetos" en memoria como el BG (background)...etc
 #   tambien tenemos valores constantes como el title, etc
-from game.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE
+from game.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
 
 # Game es la definicion de la clase (plantilla o molde para sacar objetos)
 # self es una referencia que indica que el metodo o el atributo es de cada "objeto" de la clase Game
@@ -18,6 +20,9 @@ class Game:
         #primero llamo a la clase Spaceship y accedo a la bariable screen del hijo
         #metodo inicialzador de spaceship
         self.avatar = Spaceship(self.screen) 
+        self.enemy = Enemy(self.screen)
+        self.enemy_2 = Enemy_2(self.screen)
+        self.pantalla = self.screen
         self.game_speed = 10
         self.x_pos_bg = 0
         self.y_pos_bg = 0
@@ -31,6 +36,7 @@ class Game:
             self.handle_events()
             self.update()
             self.draw()
+            
         else:
             print(f"game is over because self.playing is", self.playing)
         pygame.display.quit()
@@ -62,10 +68,8 @@ class Game:
     # si tienes un spaceship; el spaceship deberia tener un "update" method que llamamos desde aqui
     def update(self):
          self.avatar.update()
-
-         
-
-         
+         self.enemy.update()
+         self.enemy_2.update()
 
     # este metodo "dibuja o renderiza o refresca mis cambios en la pantalla del juego"
     # aca escribo ALGO de la logica "necesaria" -> repartimos responsabilidades entre clases
@@ -76,6 +80,11 @@ class Game:
         self.screen.fill((255, 255, 255)) # esta tupla (255, 255, 255) representa un codigo de color: blanco
         self.draw_background()
         self.avatar.draw()
+        self.enemy.draw()
+        self.enemy_2.draw()
+        self.avatar.muestra_texto(self.pantalla,"xswin")
+        self.enemy.muestra_texto(self.pantalla,"DV1")
+        self.enemy_2.muestra_texto(self.pantalla,"DV2")
         pygame.display.update()
         pygame.display.flip()
 
