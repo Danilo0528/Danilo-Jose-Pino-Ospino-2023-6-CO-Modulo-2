@@ -1,3 +1,4 @@
+import random
 import pygame
 from game.components.bullet import Bullet
 from game.components.enemy import Enemy
@@ -6,12 +7,12 @@ from pygame.sprite import Sprite
 
 # game.utils.constants -> es un modulo donde tengo "objetos" en memoria como el BG (background)...etc
 #   tambien tenemos valores constantes como el title, etc
-from game.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
+from game.utils.constants import BG, ENEMY_1, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, SPACESHIP, TITLE, FPS
 
 # Game es la definicion de la clase (plantilla o molde para sacar objetos)
 # self es una referencia que indica que el metodo o el atributo es de cada "objeto" de la clase Game
 class Game:
-    def __init__(self):
+    def __init__(self, num_enemies = 20):
         pygame.init() # este es el enlace con la libreria pygame para poder mostrar la pantalla del juego
         pygame.display.set_caption(TITLE)
         pygame.display.set_icon(ICON)
@@ -23,14 +24,15 @@ class Game:
         self.avatar = Spaceship(self.screen) 
         self.enemy = Enemy(self.screen)
         self.bullets = pygame.sprite.Group()
-        self.enemies = pygame.sprite.Group()
-
+        #self.enemies = pygame.sprite.Group()
         self.pantalla = self.screen
         self.game_speed = 10
         self.x_pos_bg = 0
         self.y_pos_bg = 0
-
-        self.enemies = pygame.sprite.Group()
+        self.spaceship_death_count = 0
+        self.game_over = True
+        self.enemies = []
+        self.enemies_count = num_enemies
 
     # este es el "game loop"
     # # Game loop: events - update - draw
@@ -75,13 +77,14 @@ class Game:
          self.bullets.update()
          #self.avatar.check_collisions(self.enemies)
 
-         for bullet in self.bullets:
-            for enemy in self.enemies:
-                if bullet.check_collision(enemy):
-                    # Realizar acciones cuando hay una colisión entre la bala y el enemigo
-                    # Por ejemplo, eliminar la bala y el enemigo
-                    self.bullets.remove(bullet)
-                    self.enemies.remove(enemy)
+        #  for enemy in self.enemies:
+        #      enemy.update()
+
+        #  if len(self.enemies) < self.enemies_count:
+        #     enemy_name = f"Enemy{len(self.enemies) + 1}"
+        #     new_enemy = Enemy(self.screen, enemy_name)
+        #     self.enemies.append(new_enemy)
+
 
     # este metodo "dibuja o renderiza o refresca mis cambios en la pantalla del juego"
     # aca escribo ALGO de la logica "necesaria" -> repartimos responsabilidades entre clases
@@ -89,16 +92,22 @@ class Game:
     # si tienes un spaceship; el spaceship deberia tener un "draw" method que llamamos desde aqui
     
     def draw(self):
-        self.clock.tick(FPS) # configuramos cuantos frames dibujaremos por segundo
-        self.screen.fill((255, 255, 255)) # esta tupla (255, 255, 255) representa un codigo de color: blanco
+        self.clock.tick(FPS)
+        self.screen.fill((255, 255, 255))
         self.draw_background()
-        self.avatar.draw()
-        self.enemy.draw()
-        self.avatar.muestra_texto(self.pantalla,"xswin")
-        self.enemy.muestra_texto(self.pantalla,"DV1")
-        self.bullets.draw(self.screen)
+        for enemy in self.enemies:
+            enemy.draw(self.screen)
+        if not self.game_over:
+            self.avatar.draw()
+            self.enemy.draw()
+            self.avatar.muestra_texto(self.pantalla, "xswin")
+            self.enemy.muestra_texto(self.pantalla, "DV1")
+            self.bullets.draw(self.screen)
+        else:
+            self.show_game_over_screen()
         pygame.display.update()
         pygame.display.flip()
+
 
     def draw_background(self):
         # le indicamos a pygame que transforme el objeto BG (que es una imagen en memoria, no es un archivo)
@@ -120,3 +129,20 @@ class Game:
         # No hay una velocidad de juego como tal, el "game_speed" simplemente me indica
         # cuanto me voy a mover (cuantos pixeles hacia arriba o abajo) cen el eje Y
         self.y_pos_bg += self.game_speed
+
+    def show_game_over_screen(self):
+        self.screen.fill((0, 0, 0))
+        font = pygame.font.Font(None, 36)
+        text1 = font.render("Game Over", True, (255, 255, 255))
+        text2 = font.render("Press F5 to restart", True, (255, 255, 255))
+        text3 = font.render("Press X to quit", True, (255, 255, 255))
+        imagen = pygame.transform.scale(SPACESHIP,(350, 400))
+        image_rect = imagen.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100))
+        text1_rect = text1.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50))
+        text2_rect = text2.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        text3_rect = text3.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50))
+        self.screen.blit(imagen, image_rect)
+        self.screen.blit(text1, text1_rect)
+        self.screen.blit(text2, text2_rect)
+        self.screen.blit(text3, text3_rect)
+        pygame.display.update()

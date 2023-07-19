@@ -2,6 +2,7 @@ import math
 import random
 import pygame
 from pygame.sprite import Sprite
+
 from game.utils.constants import ENEMY_1, ENEMY_2, SCREEN_HEIGHT, SCREEN_WIDTH
 
 class Enemy(Sprite):
@@ -44,8 +45,8 @@ class Enemy(Sprite):
 
     def draw(self):
         # Método blit para dibujar el spaceship en pantalla.
-        if self.image_index == 1:
-            self.screen.blit(self.image_1, (self.position_x, self.position_y))
-        else:
-            self.screen.blit(self.image_2, (self.position_x, self.position_y))
-        self.image_index = (self.image_index + 1) % 2
+        #if self.image_index == 1:
+        self.screen.blit(self.image_1, (self.position_x, self.position_y))
+        self.screen.blit(self.image_2, (self.position_x, self.position_y))
+
+        #self.image_index = (self.image_index + 1) % 2
