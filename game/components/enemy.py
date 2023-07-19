@@ -1,27 +1,28 @@
 import math
 import random
 import pygame
-
+from pygame.sprite import Sprite
 from game.utils.constants import ENEMY_1, ENEMY_2, SCREEN_HEIGHT, SCREEN_WIDTH
 
-class Enemy:
-
+class Enemy(Sprite):
     POSITION_ENEMY_X = 500
     POSITION_ENEMY_Y = 20
 
-    def __init__(self,screen):
-        #self.imagen = SPACESHIP
-        #cambia el tamaño de la imagen para que se vea mejor Nota toma ancho y alto
-        #fuucion que hace que pueda cambiar el tamaño de la imagen
-        self.imagen = pygame.transform.scale(ENEMY_1, (80, 90))
+    def __init__(self, screen):
+        super().__init__()
+        # self.imagen = SPACESHIP
+        # Cambia el tamaño de la imagen para que se vea mejor. Nota: toma ancho y alto.
+        # Función que hace que pueda cambiar el tamaño de la imagen.
+        self.image_1 = pygame.transform.scale(ENEMY_1, (80, 90))
+        self.image_2 = pygame.transform.scale(ENEMY_2, (80, 90))
         self.screen = screen
+        self.rect = self.image_1.get_rect()
         self.position_x = self.POSITION_ENEMY_X
         self.position_y = self.POSITION_ENEMY_Y
         self.angle = 0
         self.radius = random.uniform(80, 120)
         self.speed = random.uniform(0.03, 0.07)
-
-
+        self.image_index = 1
 
     def muestra_texto(self, pantalla,texto,color=(255,255,255)):
         tipo_letra = pygame.font.Font('freesansbold.ttf',24)
@@ -31,15 +32,20 @@ class Enemy:
         pantalla.blit(superficie,rectangulo)
 
     def update(self):
-        self.angle += self.speed
-        # Calculate the new position using trigonometry
-        self.position_x = self.POSITION_ENEMY_X + self.radius * math.cos(self.angle)
-        self.position_y = self.POSITION_ENEMY_Y + self.radius * math.sin(self.angle)
-        # Check boundaries and reverse direction
-        if self.position_x < 0 or self.position_x + self.imagen.get_width() > SCREEN_WIDTH:
+        self.angle += self.speed  # Incrementa el ángulo del enemigo
+        # Calcula una nueva posición.
+        self.position_x = self.POSITION_ENEMY_X + self.radius * math.cos(self.angle)  # Calcula la posición en el eje x
+        self.position_y = self.POSITION_ENEMY_Y + self.radius * math.sin(self.angle)  # Calcula la posición en el eje y
+        # Comprueba si la posición del enemigo está fuera de la pantalla.
+        if self.position_x < 0 or self.position_x + self.rect.width > SCREEN_WIDTH:
+            # Invierte la dirección de movimiento multiplicando la velocidad por -1.
             self.speed *= -1
-        print(f"Enemy: ({self.position_x}, {self.position_y})")
+        #print(f"Enemy: ({self.position_x}, {self.position_y})")
 
     def draw(self):
-        #metodo blit para dibujar el spaceship en pantalla
-        self.screen.blit(self.imagen, (self.position_x, self.position_y))
+        # Método blit para dibujar el spaceship en pantalla.
+        if self.image_index == 1:
+            self.screen.blit(self.image_1, (self.position_x, self.position_y))
+        else:
+            self.screen.blit(self.image_2, (self.position_x, self.position_y))
+        self.image_index = (self.image_index + 1) % 2

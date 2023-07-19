@@ -1,7 +1,8 @@
 import pygame
+from game.components.bullet import Bullet
 from game.components.enemy import Enemy
-from game.components.enemy2 import Enemy_2
 from game.components.spaceship import Spaceship
+from pygame.sprite import Sprite
 
 # game.utils.constants -> es un modulo donde tengo "objetos" en memoria como el BG (background)...etc
 #   tambien tenemos valores constantes como el title, etc
@@ -21,11 +22,15 @@ class Game:
         #metodo inicialzador de spaceship
         self.avatar = Spaceship(self.screen) 
         self.enemy = Enemy(self.screen)
-        self.enemy_2 = Enemy_2(self.screen)
+        self.bullets = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
+
         self.pantalla = self.screen
         self.game_speed = 10
         self.x_pos_bg = 0
         self.y_pos_bg = 0
+
+        self.enemies = pygame.sprite.Group()
 
     # este es el "game loop"
     # # Game loop: events - update - draw
@@ -48,15 +53,12 @@ class Game:
             if event.type == pygame.QUIT: # pygame.QUIT representa la X de la ventana
                 self.playing = False
             if event.type == pygame.KEYDOWN: #Detecta si presiono la tecla
-                print("presione la tecla")
                 if event.key == pygame.K_LEFT: #mueve ala  izquierda al presionar
                     self.avatar.moving_left()
-                    print("mueve a la izquierda")
-                    #self.moving_x = -5
                 elif event.key == pygame.K_RIGHT: #mueve ala  derecha al presionar
-                        print("mueve a la derecha")
-                        self.avatar.moving_right()
-                        #self.moving_x = 5
+                    self.avatar.moving_right()
+                elif event.key == pygame.K_SPACE:
+                    self.avatar.shot_bullet()
             elif event.type == pygame.KEYUP: #Detecta si solte la tecla
                 #verifica que si solte la tecla
                 if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
@@ -67,24 +69,34 @@ class Game:
     # o sea aqui deberia llamar a los updates de mis otros objetos
     # si tienes un spaceship; el spaceship deberia tener un "update" method que llamamos desde aqui
     def update(self):
+        #le paso la lista de naves enemigas a avatar
          self.avatar.update()
          self.enemy.update()
-         self.enemy_2.update()
+         self.bullets.update()
+         #self.avatar.check_collisions(self.enemies)
+
+         for bullet in self.bullets:
+            for enemy in self.enemies:
+                if bullet.check_collision(enemy):
+                    # Realizar acciones cuando hay una colisión entre la bala y el enemigo
+                    # Por ejemplo, eliminar la bala y el enemigo
+                    self.bullets.remove(bullet)
+                    self.enemies.remove(enemy)
 
     # este metodo "dibuja o renderiza o refresca mis cambios en la pantalla del juego"
     # aca escribo ALGO de la logica "necesaria" -> repartimos responsabilidades entre clases
     # o sea aqui deberia llamar a los metodos "draw" de mis otros objetos
     # si tienes un spaceship; el spaceship deberia tener un "draw" method que llamamos desde aqui
+    
     def draw(self):
         self.clock.tick(FPS) # configuramos cuantos frames dibujaremos por segundo
         self.screen.fill((255, 255, 255)) # esta tupla (255, 255, 255) representa un codigo de color: blanco
         self.draw_background()
         self.avatar.draw()
         self.enemy.draw()
-        self.enemy_2.draw()
         self.avatar.muestra_texto(self.pantalla,"xswin")
         self.enemy.muestra_texto(self.pantalla,"DV1")
-        self.enemy_2.muestra_texto(self.pantalla,"DV2")
+        self.bullets.draw(self.screen)
         pygame.display.update()
         pygame.display.flip()
 
